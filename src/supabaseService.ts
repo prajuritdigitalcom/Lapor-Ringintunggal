@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
 import path from "path";
-import { Complaint, ConversationMessage, AdminUser, Notification, VillageStats } from "./types";
+import { Complaint, ConversationMessage, AdminUser, Notification, VillageStats } from "./types.js";
 
 const supabaseUrl = process.env.SUPABASE_URL || "https://zzojrxcepxdwqwvhkyts.supabase.co";
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || "sb_publishable_F4Q8WfKNZuwZ1AV6nHArcg_uoAjc5DQ";
