@@ -15,7 +15,17 @@ import {
 import fs from "fs";
 import path from "path";
 import { Complaint, ConversationMessage, AdminUser, Notification, VillageStats } from "./types";
-import firebaseConfigLocal from "../firebase-applet-config.json";
+
+const firebaseConfigLocal = {
+  projectId: "gen-lang-client-0861572108",
+  appId: "1:525628589485:web:d5cde87f999c6d88b50d24",
+  apiKey: "AIzaSyDALy29qVVdu6JMK7O9P7t1MlANWIkd-lc",
+  authDomain: "gen-lang-client-0861572108.firebaseapp.com",
+  firestoreDatabaseId: "ai-studio-laporringintungg-a942ee9c-42a3-422b-9c6f-cc08a30b3e3b",
+  storageBucket: "gen-lang-client-0861572108.firebasestorage.app",
+  messagingSenderId: "525628589485",
+  measurementId: ""
+};
 
 let db: Firestore;
 let firebaseInitError: any = null;
