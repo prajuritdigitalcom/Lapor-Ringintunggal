@@ -226,4 +226,13 @@ async function start() {
   });
 }
 
-start();
+if (!process.env.VERCEL) {
+  start();
+} else {
+  // If running in Vercel serverless function, still run seeding (cold start)
+  seedDatabaseIfEmpty().catch((err) => {
+    console.error("Failed to seed database during cold start:", err);
+  });
+}
+
+export default app;

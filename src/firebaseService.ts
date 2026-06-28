@@ -20,13 +20,42 @@ let db: Firestore;
 
 // Initialize Firebase
 try {
-  const configPath = path.join(process.cwd(), "firebase-applet-config.json");
-  if (!fs.existsSync(configPath)) {
-    console.error("firebase-applet-config.json not found! Please run firebase setup first.");
-    process.exit(1);
+  let firebaseConfig: any = null;
+
+  // 1. Try to read from environment variables first (ideal for Render/production)
+  if (process.env.FIREBASE_CONFIG) {
+    try {
+      firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG);
+      console.log("Firebase config loaded from FIREBASE_CONFIG environment variable.");
+    } catch (e) {
+      console.error("Failed to parse FIREBASE_CONFIG env variable as JSON:", e);
+    }
+  } else if (process.env.FIREBASE_API_KEY) {
+    firebaseConfig = {
+      apiKey: process.env.FIREBASE_API_KEY,
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.FIREBASE_APP_ID,
+      firestoreDatabaseId: process.env.FIREBASE_DATABASE_ID
+    };
+    console.log("Firebase config loaded from individual environment variables.");
   }
 
-  const firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+  // 2. Fallback to reading from local file if env variables are not present
+  if (!firebaseConfig) {
+    const configPath = path.join(process.cwd(), "firebase-applet-config.json");
+    if (fs.existsSync(configPath)) {
+      firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+      console.log("Firebase config loaded from firebase-applet-config.json file.");
+    }
+  }
+
+  if (!firebaseConfig) {
+    console.error("Firebase configuration not found! Please set Firebase environment variables or ensure firebase-applet-config.json is present.");
+    process.exit(1);
+  }
   
   const firebaseApp = initializeApp({
     apiKey: firebaseConfig.apiKey,
