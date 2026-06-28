@@ -18,7 +18,7 @@ import {
   getNotifications,
   readNotification,
   readAllNotifications
-} from "./src/firebaseService";
+} from "./src/supabaseService";
 
 dotenv.config();
 
