@@ -9,16 +9,16 @@ const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || "sb_publishable_F4Q8WfK
 let supabase: any = null;
 let useSupabase = false;
 
-if (supabaseUrl && supabaseAnonKey) {
+if (supabaseUrl && typeof supabaseUrl === "string" && supabaseUrl.startsWith("http") && supabaseAnonKey) {
   try {
     supabase = createClient(supabaseUrl, supabaseAnonKey);
     useSupabase = true;
     console.log("Supabase client initialized with URL:", supabaseUrl);
-  } catch (err) {
-    console.error("Failed to initialize Supabase client:", err);
+  } catch (err: any) {
+    console.error("Failed to initialize Supabase client:", err.message || err);
   }
 } else {
-  console.log("Supabase credentials missing. Running in robust local database fallback mode.");
+  console.log("Supabase credentials missing or invalid. Running in robust local database fallback mode.");
 }
 
 // --- LOCAL DATABASE ENGINE WITH MEMORY FALLBACK ---
@@ -64,15 +64,21 @@ function saveLocalData(data: any) {
 async function runQuery<T>(supabaseFn: () => Promise<any>, fallbackFn: () => any): Promise<T> {
   if (useSupabase && supabase) {
     try {
-      const res = await supabaseFn();
-      if (res.error) {
-        // Table not found or schema mismatch -> fallback silently
-        console.warn("Supabase query returned error, falling back to local file DB:", res.error.message);
-      } else {
-        return res.data as T;
+      // Race the Supabase query against a 4-second timeout to prevent serverless function hangs
+      const res = await Promise.race([
+        supabaseFn(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Supabase request timed out after 4000ms")), 4000))
+      ]);
+
+      if (!res || res.error || res.data === undefined || res.data === null) {
+        if (res && res.error) {
+          console.warn("Supabase query returned error, falling back to local file DB:", res.error.message);
+        }
+        return fallbackFn() as T;
       }
+      return res.data as T;
     } catch (err: any) {
-      console.error("Supabase exception, falling back to local file DB:", err.message || err);
+      console.error("Supabase exception or timeout, falling back to local file DB:", err.message || err);
     }
   }
   return fallbackFn() as T;
@@ -164,7 +170,8 @@ export async function getComplaints(): Promise<Complaint[]> {
     async () => supabase.from("pengaduan").select("*"),
     () => getLocalData().pengaduan
   ).then((list) => {
-    return list.sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
+    const validList = Array.isArray(list) ? list : [];
+    return validList.sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
   });
 }
 
@@ -209,12 +216,13 @@ export async function createComplaint(complaintData: Partial<Complaint>): Promis
   const now = new Date();
   const dateStr = now.toISOString().split("T")[0].replace(/-/g, "");
   const allComplaints = await getComplaints();
-  const todayReports = allComplaints.filter((p) => p.id.startsWith(`LR-${dateStr}`));
+  const todayReports = allComplaints.filter((p) => p && typeof p.id === "string" && p.id.startsWith(`LR-${dateStr}`));
   let nextNum = 1;
   if (todayReports.length > 0) {
     const numbers = todayReports.map((p) => {
       const parts = p.id.split("-");
-      return parseInt(parts[2], 10);
+      const num = parseInt(parts[2], 10);
+      return isNaN(num) ? 0 : num;
     });
     nextNum = Math.max(...numbers) + 1;
   }

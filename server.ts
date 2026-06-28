@@ -22,6 +22,11 @@ import {
 
 dotenv.config();
 
+// Trigger non-blocking, background database seeding on startup
+seedDatabaseIfEmpty().catch((err) => {
+  console.error("Background seeding failed on startup:", err);
+});
+
 const app = express();
 const PORT = 3000;
 
@@ -200,21 +205,6 @@ app.post("/api/notifikasi/baca-semua", async (req, res) => {
     res.status(400).json({ error: err.message || "Failed to clear notifications" });
   }
 });
-
-// --- LAZY DATABASE SEEDING MIDDLEWARE ---
-let seeded = false;
-const seedMiddleware: express.RequestHandler = async (req, res, next) => {
-  if (!seeded && req.path.startsWith("/api")) {
-    seeded = true;
-    try {
-      await seedDatabaseIfEmpty();
-    } catch (err) {
-      console.error("Lazy database seeding failed:", err);
-    }
-  }
-  next();
-};
-app.use(seedMiddleware);
 
 // --- MOUNT VITE MIDDLEWARE ---
 async function start() {
