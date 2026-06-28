@@ -1,0 +1,6 @@
+{
+  "name": "Lapor Ringintunggal",
+  "description": "Platform pengaduan dan aspirasi warga Desa Ringintunggal, Kecamatan Gayam, Kabupaten Bojonegoro berbasis web mobile-first.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
