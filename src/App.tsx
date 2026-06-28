@@ -238,8 +238,20 @@ export default function App() {
         setPhotoBefore(null);
         setFormStep(1);
       } else {
-        const errData = await res.json().catch(() => ({}));
-        const errMsg = errData.error || "Gagal mengirim aduan. Harap coba beberapa saat lagi.";
+        let errMsg = "Gagal mengirim aduan.";
+        try {
+          const text = await res.text();
+          try {
+            const errData = JSON.parse(text);
+            errMsg = errData.error || `Error ${res.status}: ${res.statusText}`;
+          } catch (_) {
+            // If response is not JSON, slice it if it is long (e.g. HTML error page)
+            const cleanText = text.length > 300 ? text.slice(0, 300) + "..." : text;
+            errMsg = `Error ${res.status}: ${cleanText || res.statusText}`;
+          }
+        } catch (e: any) {
+          errMsg = `Error ${res.status}: ${e.message || "Unknown error"}`;
+        }
         alert(`Gagal mengirim aduan: ${errMsg}`);
       }
     } catch (err) {

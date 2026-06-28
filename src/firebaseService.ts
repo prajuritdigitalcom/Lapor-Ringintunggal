@@ -18,6 +18,7 @@ import { Complaint, ConversationMessage, AdminUser, Notification, VillageStats }
 import firebaseConfigLocal from "../firebase-applet-config.json";
 
 let db: Firestore;
+let firebaseInitError: any = null;
 
 // Initialize Firebase
 try {
@@ -44,7 +45,20 @@ try {
     console.log("Firebase config loaded from individual environment variables.");
   }
 
-  // 2. Fallback to imported/bundled config
+  // 2. Fallback to reading file via fs (extremely robust for runtime)
+  if (!firebaseConfig) {
+    try {
+      const configPath = path.join(process.cwd(), "firebase-applet-config.json");
+      if (fs.existsSync(configPath)) {
+        firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+        console.log("Firebase config loaded via fs from firebase-applet-config.json.");
+      }
+    } catch (e) {
+      console.error("Failed to read firebase-applet-config.json via fs:", e);
+    }
+  }
+
+  // 3. Fallback to imported/bundled config
   if (!firebaseConfig) {
     const rawConfig = firebaseConfigLocal as any;
     firebaseConfig = rawConfig && rawConfig.default ? rawConfig.default : rawConfig;
@@ -52,8 +66,7 @@ try {
   }
 
   if (!firebaseConfig) {
-    console.error("Firebase configuration not found! Please set Firebase environment variables or ensure firebase-applet-config.json is present.");
-    process.exit(1);
+    throw new Error("Firebase configuration not found! Please set Firebase environment variables or ensure firebase-applet-config.json is present.");
   }
   
   const firebaseApp = initializeApp({
@@ -67,9 +80,18 @@ try {
 
   db = getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId || "(default)");
   console.log("Firebase initialized successfully with project ID:", firebaseConfig.projectId);
-} catch (error) {
+} catch (error: any) {
+  firebaseInitError = error;
   console.error("Failed to initialize Firebase:", error);
-  process.exit(1);
+}
+
+function checkFirebaseInit() {
+  if (firebaseInitError) {
+    throw new Error(`Firebase failed to initialize on startup: ${firebaseInitError.message || firebaseInitError}`);
+  }
+  if (!db) {
+    throw new Error("Firestore instance 'db' is undefined. Make sure Firebase is properly configured.");
+  }
 }
 
 // Default Seed Data
@@ -230,6 +252,7 @@ const defaultDb = {
 // Seed database helper
 export async function seedDatabaseIfEmpty() {
   try {
+    checkFirebaseInit();
     const colRef = collection(db, "pengaduan");
     const snapshot = await getDocs(colRef);
     if (snapshot.empty) {
@@ -294,6 +317,7 @@ export async function getStats(): Promise<VillageStats> {
 }
 
 export async function getComplaints(): Promise<Complaint[]> {
+  checkFirebaseInit();
   const colRef = collection(db, "pengaduan");
   const snapshot = await getDocs(colRef);
   const list: Complaint[] = [];
@@ -305,6 +329,7 @@ export async function getComplaints(): Promise<Complaint[]> {
 }
 
 export async function getComplaintById(id: string): Promise<{ item: Complaint; percakapan: ConversationMessage[] } | null> {
+  checkFirebaseInit();
   const docRef = doc(db, "pengaduan", id);
   const docSnap = await getDoc(docRef);
   if (!docSnap.exists()) {
@@ -540,6 +565,7 @@ export async function submitRating(id: string, rating: string, ratingKomentar?: 
 }
 
 export async function getAdmins(): Promise<AdminUser[]> {
+  checkFirebaseInit();
   const colRef = collection(db, "admins");
   const snapshot = await getDocs(colRef);
   const list: AdminUser[] = [];
@@ -621,6 +647,7 @@ export async function loginAdmin(username: string, passwordHash: string): Promis
 }
 
 export async function getNotifications(): Promise<Notification[]> {
+  checkFirebaseInit();
   const colRef = collection(db, "notifikasi");
   const snapshot = await getDocs(colRef);
   const list: Notification[] = [];
