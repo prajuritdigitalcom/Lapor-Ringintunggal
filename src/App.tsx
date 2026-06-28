@@ -493,7 +493,7 @@ export default function App() {
                   {[
                     { num: "1", title: "Kirim Aduan", desc: "Isi formulir pengaduan dengan jelas dan lengkap" },
                     { num: "2", title: "Diproses", desc: "Ditindaklanjuti oleh BPD & Perangkat Desa" },
-                    { num: "3", title: "Selesai", desc: "Laporan tuntas & beri rating kepuasan" },
+                    { num: "3", title: "Selesai", desc: "Laporan selesai & berikan penilaian kepuasan Anda" },
                   ].map((step, idx) => (
                     <div key={idx} className="space-y-1">
                       <div className="mx-auto w-7 h-7 rounded-full bg-emerald-50 text-emerald-700 font-bold font-display text-xs flex items-center justify-center">
