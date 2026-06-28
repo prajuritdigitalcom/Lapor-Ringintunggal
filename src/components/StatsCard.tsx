@@ -81,25 +81,25 @@ export default function StatsCard({ stats, onFilterClick }: StatsCardProps) {
             key={card.id}
             id={`stats-card-${card.id}`}
             onClick={() => onFilterClick(card.id)}
-            className={`flex flex-col text-left p-4 rounded-3xl border ${card.bgColor} ${card.borderColor} shadow-soft hover:shadow-md transition-all duration-300 relative overflow-hidden group cursor-pointer`}
+            className={`flex items-center justify-between p-4 rounded-3xl border ${card.bgColor} ${card.borderColor} shadow-soft hover:shadow-md transition-all duration-300 relative overflow-hidden group cursor-pointer w-full`}
           >
             {/* Visual background ripple on hover */}
             <div className="absolute inset-0 bg-white/40 scale-0 group-hover:scale-100 transition-transform duration-500 rounded-3xl origin-bottom-right" />
 
-            <div className="flex justify-between items-start z-10">
+            <div className="flex flex-col text-left z-10">
               <span className="text-xs font-medium text-slate-500 tracking-tight leading-tight">
                 {card.title}
               </span>
-              <div className={`p-1.5 rounded-xl ${card.textColor} bg-white shadow-sm`}>
-                <IconComponent className={`w-4 h-4 ${card.id === "diproses" ? "group-hover:animate-spin" : ""}`} />
+              <div className="mt-2 flex items-baseline">
+                <span className="text-2xl font-bold font-display tracking-tight text-slate-900">
+                  {card.count}
+                </span>
+                <span className="text-[10px] ml-1 text-slate-400 font-normal">laporan</span>
               </div>
             </div>
 
-            <div className="mt-2 flex items-baseline z-10">
-              <span className="text-2xl font-bold font-display tracking-tight text-slate-900">
-                {card.count}
-              </span>
-              <span className="text-[10px] ml-1 text-slate-400 font-normal">laporan</span>
+            <div className={`p-1.5 rounded-xl ${card.textColor} bg-white shadow-sm z-10 self-center`}>
+              <IconComponent className={`w-4 h-4 ${card.id === "diproses" ? "group-hover:animate-spin" : ""}`} />
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-slate-200/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />

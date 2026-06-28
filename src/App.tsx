@@ -412,7 +412,13 @@ export default function App() {
         
         {/* HEADER SECTION */}
         <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-50 px-5 py-4 flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-2">
+          <div 
+            onClick={() => {
+              setActiveTab("beranda");
+              setSelectedComplaint(null);
+            }}
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <img
               src="https://i.ibb.co.com/tTzpHtJc/logo-ringintunggal-1.webp"
               alt="Logo Desa Ringintunggal"
@@ -421,10 +427,10 @@ export default function App() {
             />
             <div>
               <h1 className="text-sm font-black font-display tracking-tight text-slate-950 uppercase">
-                Ringintunggal
+                Desa Ringintunggal
               </h1>
               <p className="text-[10px] text-emerald-600 font-bold tracking-wider uppercase -mt-0.5">
-                Lapor Warga Desa
+                Kecamatan Gayam Kabupaten Bojonegoro
               </p>
             </div>
           </div>
@@ -462,7 +468,7 @@ export default function App() {
                     Suara Warga, Tindak Lanjut Nyata
                   </div>
                   <h2 className="text-xl font-black font-display leading-tight tracking-tight">
-                    Layanan Pengaduan & Aspirasi Desa Ringintunggal
+                    Layanan Pengaduan & Aspirasi Warga Desa Ringintunggal
                   </h2>
                   <p className="text-xs text-emerald-100 leading-relaxed font-medium">
                     Sampaikan keluhan, infrastruktur rusak, lampu jalan padam, atau bantuan sosial secara transparan dan dipantau progresnya.
@@ -484,7 +490,6 @@ export default function App() {
                   <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider">
                     Statistik Aduan Aktif
                   </h3>
-                  <span className="text-[10px] text-emerald-600 font-bold">Ringintunggal Terkini</span>
                 </div>
                 <StatsCard stats={stats} onFilterClick={handleStatsFilter} />
               </div>
@@ -496,8 +501,8 @@ export default function App() {
                 </h3>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   {[
-                    { num: "1", title: "Kirim Aduan", desc: "Isi form laporan secara anonim / rahasia" },
-                    { num: "2", title: "Diproses", desc: "Dipantau & diperbaiki perangkat desa" },
+                    { num: "1", title: "Kirim Aduan", desc: "Isi formulir pengaduan dengan jelas dan lengkap" },
+                    { num: "2", title: "Diproses", desc: "Ditindaklanjuti oleh BPD & Perangkat Desa" },
                     { num: "3", title: "Selesai", desc: "Laporan tuntas & beri rating kepuasan" },
                   ].map((step, idx) => (
                     <div key={idx} className="space-y-1">
@@ -715,7 +720,7 @@ export default function App() {
                       {/* Step 2 Inputs */}
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-[10px] text-slate-400 font-bold block uppercase">Pilih Rukun Tetangga (RT)</label>
+                          <label className="text-[10px] text-slate-400 font-bold block uppercase">Pilih RT</label>
                           <select
                             value={complaintForm.rt}
                             onChange={(e) => setComplaintForm({ ...complaintForm, rt: e.target.value })}
@@ -1306,19 +1311,6 @@ export default function App() {
                         Masuk Dashboard Desa
                       </button>
                     </form>
-
-                    {/* Simple Help/Info credentials */}
-                    <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-2xl space-y-1.5 text-[10px] text-slate-500">
-                      <span className="font-bold block text-slate-700">Kredensial Demo Admin:</span>
-                      <div className="flex justify-between">
-                        <span>Username: <span className="font-mono bg-slate-200 px-1 rounded">admin</span></span>
-                        <span>Password: <span className="font-mono bg-slate-200 px-1 rounded">admin123</span></span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Username: <span className="font-mono bg-slate-200 px-1 rounded">kades</span></span>
-                        <span>Password: <span className="font-mono bg-slate-200 px-1 rounded">kades123</span></span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               )}
