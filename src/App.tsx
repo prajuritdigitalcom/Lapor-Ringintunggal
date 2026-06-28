@@ -436,17 +436,7 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                fetchStats();
-                fetchComplaints();
-                fetchNotifs();
-              }}
-              title="Perbarui Data"
-              className="p-2 text-slate-400 hover:text-emerald-600 rounded-xl hover:bg-slate-50 transition-colors duration-200"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
+            {/* Refresh button removed per user request */}
           </div>
         </header>
 
@@ -468,7 +458,7 @@ export default function App() {
                     Suara Warga, Tindak Lanjut Nyata
                   </div>
                   <h2 className="text-xl font-black font-display leading-tight tracking-tight">
-                    Layanan Pengaduan & Aspirasi Warga Desa Ringintunggal
+                    Layanan Pengaduan & Aspirasi Desa Ringintunggal
                   </h2>
                   <p className="text-xs text-emerald-100 leading-relaxed font-medium">
                     Sampaikan keluhan, infrastruktur rusak, lampu jalan padam, atau bantuan sosial secara transparan dan dipantau progresnya.
@@ -536,7 +526,7 @@ export default function App() {
                 <div className="space-y-3">
                   {[...allComplaints]
                     .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime())
-                    .slice(0, 3)
+                    .slice(0, 10)
                     .map((item) => (
                       <ComplaintCard
                         key={item.id}
