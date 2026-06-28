@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import {
   seedDatabaseIfEmpty,
@@ -202,12 +201,25 @@ app.post("/api/notifikasi/baca-semua", async (req, res) => {
   }
 });
 
+// --- LAZY DATABASE SEEDING MIDDLEWARE ---
+let seeded = false;
+const seedMiddleware: express.RequestHandler = async (req, res, next) => {
+  if (!seeded && req.path.startsWith("/api")) {
+    seeded = true;
+    try {
+      await seedDatabaseIfEmpty();
+    } catch (err) {
+      console.error("Lazy database seeding failed:", err);
+    }
+  }
+  next();
+};
+app.use(seedMiddleware);
+
 // --- MOUNT VITE MIDDLEWARE ---
 async function start() {
-  // Ensure database is initialized at startup
-  await seedDatabaseIfEmpty();
-
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -228,11 +240,6 @@ async function start() {
 
 if (!process.env.VERCEL) {
   start();
-} else {
-  // If running in Vercel serverless function, still run seeding (cold start)
-  seedDatabaseIfEmpty().catch((err) => {
-    console.error("Failed to seed database during cold start:", err);
-  });
 }
 
 export default app;
