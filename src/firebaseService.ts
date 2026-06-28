@@ -46,7 +46,8 @@ try {
 
   // 2. Fallback to imported/bundled config
   if (!firebaseConfig) {
-    firebaseConfig = firebaseConfigLocal;
+    const rawConfig = firebaseConfigLocal as any;
+    firebaseConfig = rawConfig && rawConfig.default ? rawConfig.default : rawConfig;
     console.log("Firebase config loaded from bundled firebase-applet-config.json.");
   }
 
