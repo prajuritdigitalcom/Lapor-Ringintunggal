@@ -15,6 +15,7 @@ import {
 import fs from "fs";
 import path from "path";
 import { Complaint, ConversationMessage, AdminUser, Notification, VillageStats } from "./types";
+import firebaseConfigLocal from "../firebase-applet-config.json";
 
 let db: Firestore;
 
@@ -43,13 +44,10 @@ try {
     console.log("Firebase config loaded from individual environment variables.");
   }
 
-  // 2. Fallback to reading from local file if env variables are not present
+  // 2. Fallback to imported/bundled config
   if (!firebaseConfig) {
-    const configPath = path.join(process.cwd(), "firebase-applet-config.json");
-    if (fs.existsSync(configPath)) {
-      firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
-      console.log("Firebase config loaded from firebase-applet-config.json file.");
-    }
+    firebaseConfig = firebaseConfigLocal;
+    console.log("Firebase config loaded from bundled firebase-applet-config.json.");
   }
 
   if (!firebaseConfig) {

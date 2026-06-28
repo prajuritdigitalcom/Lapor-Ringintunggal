@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Izinkan akses baca dan tulis ke koleksi pengaduan
+    match /pengaduan/{id} {
+      allow read, write: if true;
+    }
+    
+    // Izinkan akses baca dan tulis ke koleksi percakapan
+    match /percakapan/{id} {
+      allow read, write: if true;
+    }
+    
+    // Izinkan akses baca dan tulis ke koleksi admins
+    match /admins/{id} {
+      allow read, write: if true;
+    }
+    
+    // Izinkan akses baca dan tulis ke koleksi notifikasi
+    match /notifikasi/{id} {
+      allow read, write: if true;
+    }
+    
+    // Deny semua koleksi lainnya secara default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

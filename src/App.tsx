@@ -238,7 +238,9 @@ export default function App() {
         setPhotoBefore(null);
         setFormStep(1);
       } else {
-        alert("Gagal mengirim aduan. Harap coba beberapa saat lagi.");
+        const errData = await res.json().catch(() => ({}));
+        const errMsg = errData.error || "Gagal mengirim aduan. Harap coba beberapa saat lagi.";
+        alert(`Gagal mengirim aduan: ${errMsg}`);
       }
     } catch (err) {
       console.error(err);
