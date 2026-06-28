@@ -21,8 +21,24 @@ if (supabaseUrl && supabaseAnonKey) {
   console.log("Supabase credentials missing. Running in robust local database fallback mode.");
 }
 
-// --- LOCAL JSON DATABASE FALLBACK ENGINE ---
+// --- LOCAL DATABASE ENGINE WITH MEMORY FALLBACK ---
 const dbJsonPath = path.join(process.cwd(), "src", "db.json");
+
+let memoryDb: {
+  pengaduan: Complaint[];
+  percakapan: ConversationMessage[];
+  admins: AdminUser[];
+  notifikasi: Notification[];
+} = { pengaduan: [], percakapan: [], admins: [], notifikasi: [] };
+
+// Load initial data once on startup (read-only is safe on Vercel)
+try {
+  if (fs.existsSync(dbJsonPath)) {
+    memoryDb = JSON.parse(fs.readFileSync(dbJsonPath, "utf8"));
+  }
+} catch (e) {
+  console.error("Failed to load local db.json on startup:", e);
+}
 
 function getLocalData(): {
   pengaduan: Complaint[];
@@ -30,19 +46,15 @@ function getLocalData(): {
   admins: AdminUser[];
   notifikasi: Notification[];
 } {
-  try {
-    if (fs.existsSync(dbJsonPath)) {
-      return JSON.parse(fs.readFileSync(dbJsonPath, "utf8"));
-    }
-  } catch (e) {
-    console.error("Failed to read local db.json:", e);
-  }
-  return { pengaduan: [], percakapan: [], admins: [], notifikasi: [] };
+  return memoryDb;
 }
 
 function saveLocalData(data: any) {
+  memoryDb = data;
   try {
-    fs.writeFileSync(dbJsonPath, JSON.stringify(data, null, 2), "utf8");
+    if (!process.env.VERCEL) {
+      fs.writeFileSync(dbJsonPath, JSON.stringify(data, null, 2), "utf8");
+    }
   } catch (e) {
     console.error("Failed to write local db.json:", e);
   }
